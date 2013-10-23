@@ -287,11 +287,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			}
 		}
 
-		//TODO: Can remove this isValid test when leaflet 0.6 is released
-		var nonPointBounds = this._nonPointGroup.getBounds();
-		if (nonPointBounds.isValid()) {
-			bounds.extend(nonPointBounds);
-		}
+		bounds.extend(this._nonPointGroup.getBounds());
 
 		return bounds;
 	},
@@ -310,6 +306,15 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		}
 
 		this._nonPointGroup.eachLayer(method, context);
+	},
+
+	//Overrides LayerGroup.getLayers
+	getLayers: function () {
+		var layers = [];
+		this.eachLayer(function (l) {
+			layers.push(l);
+		});
+		return layers;
 	},
 
 	//Returns true if the given layer is in this MarkerClusterGroup
@@ -448,7 +453,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			this._spiderfierOnRemove();
 		}
 
+
+
 		//Clean up all the layers we added to the map
+		this._hideCoverage();
 		this._featureGroup.onRemove(map);
 		this._nonPointGroup.onRemove(map);
 
@@ -459,10 +467,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 
 	getVisibleParent: function (marker) {
 		var vMarker = marker;
-		while (vMarker !== null && !vMarker._icon) {
+		while (vMarker && !vMarker._icon) {
 			vMarker = vMarker.__parent;
 		}
-		return vMarker;
+		return vMarker || null;
 	},
 
 	//Remove the given object from the given array
@@ -579,7 +587,6 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			this.on('clustermouseover', this._showCoverage, this);
 			this.on('clustermouseout', this._hideCoverage, this);
 			map.on('zoomend', this._hideCoverage, this);
-			map.on('layerremove', this._hideCoverageOnRemove, this);
 		}
 	},
 
@@ -615,12 +622,6 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		}
 	},
 
-	_hideCoverageOnRemove: function (e) {
-		if (e.layer === this) {
-			this._hideCoverage();
-		}
-	},
-
 	_unbindEvents: function () {
 		var spiderfyOnMaxZoom = this.options.spiderfyOnMaxZoom,
 			showCoverageOnHover = this.options.showCoverageOnHover,
@@ -634,7 +635,6 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			this.off('clustermouseover', this._showCoverage, this);
 			this.off('clustermouseout', this._hideCoverage, this);
 			map.off('zoomend', this._hideCoverage, this);
-			map.off('layerremove', this._hideCoverageOnRemove, this);
 		}
 	},
 
@@ -756,7 +756,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 
 	//Merge and split any existing clusters that are too big or small
 	_mergeSplitClusters: function () {
-		if (this._zoom < this._map._zoom) { //Zoom in, split
+		if (this._zoom < this._map._zoom && this._currentShownBounds.contains(this._getExpandedVisibleBounds())) { //Zoom in, split
 			this._animationStart();
 			//Remove clusters now off screen
 			this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds, this._zoom, this._getExpandedVisibleBounds());
