@@ -42,9 +42,32 @@ L.MarkerCluster = L.Marker.extend({
 		return this._childCount;
 	},
 
-	//Zoom to the extents of this cluster
+	//Zoom to the minimum of showing all of the child markers, or the extents of this cluster
 	zoomToBounds: function () {
-		this._group._map.fitBounds(this._bounds);
+		var childClusters = this._childClusters.slice(),
+			map = this._group._map,
+			boundsZoom = map.getBoundsZoom(this._bounds),
+			zoom = this._zoom + 1,
+			mapZoom = map.getZoom(),
+			i;
+
+		//calculate how far we need to zoom down to see all of the markers
+		while (childClusters.length > 0 && boundsZoom > zoom) {
+			zoom++;
+			var newClusters = [];
+			for (i = 0; i < childClusters.length; i++) {
+				newClusters = newClusters.concat(childClusters[i]._childClusters);
+			}
+			childClusters = newClusters;
+		}
+
+		if (boundsZoom > zoom) {
+			this._group._map.setView(this._latlng, zoom);
+		} else if (boundsZoom <= mapZoom) { //If fitBounds wouldn't zoom us down, zoom us down instead
+			this._group._map.setView(this._latlng, mapZoom + 1);
+		} else {
+			this._group._map.fitBounds(this._bounds);
+		}
 	},
 
 	getBounds: function () {

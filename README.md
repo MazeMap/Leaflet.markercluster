@@ -3,12 +3,15 @@ Leaflet.markercluster
 
 Provides Beautiful Animated Marker Clustering functionality for [Leaflet](http://leafletjs.com), a JS library for interactive maps.
 
-*Requires Leaflet 0.6.0 or newer.*
+*Requires Leaflet 0.7.0 or newer.*
 
 For a Leaflet 0.5 compatible version, [Download b128e950](https://github.com/Leaflet/Leaflet.markercluster/archive/b128e950d8f5d7da5b60bd0aa9a88f6d3dd17c98.zip)<br>
 For a Leaflet 0.4 compatible version, [Download the 0.2 release](https://github.com/Leaflet/Leaflet.markercluster/archive/0.2.zip)
 
 ## Using the plugin
+
+Install with Bower: `bower install leaflet.markercluster`
+
 See the included examples for usage.
 
 The [realworld example](http://leaflet.github.com/Leaflet.markercluster/example/marker-clustering-realworld.388.html) is a good place to start, it uses all of the defaults of the clusterer.
@@ -61,7 +64,7 @@ Enabled by default (boolean options):
 Other options
 * **animateAddingMarkers**: If set to true then adding individual markers to the MarkerClusterGroup after it has been added to the map will add the marker and animate it in to the cluster. Defaults to false as this gives better performance when bulk adding markers. addLayers does not support this, only addLayer with individual Markers.
 * **disableClusteringAtZoom**: If set, at this zoom level and below markers will not be clustered. This defaults to disabled. [See Example](http://leaflet.github.com/Leaflet.markercluster/example/marker-clustering-realworld-maxzoom.388.html)
-* **maxClusterRadius**: The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters.
+* **maxClusterRadius**: The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels.
 * **polygonOptions**: Options to pass when creating the L.Polygon(points, options) to show the bounds of a cluster
 * **singleMarkerMode**: If set to true, overrides the icon for all added markers to make them appear as a 1 size cluster
 * **spiderfyDistanceMultiplier**: Increase from 1 to increase the distance away from the center that spiderfied markers are placed. Use if you are using big marker icons (Default:1)
@@ -96,6 +99,7 @@ markers.on('clusterclick', function (a) {
 
 ### Zooming to the bounds of a cluster
 When you recieve an event from a cluster you can zoom to its bounds in one easy step.
+If all of the markers will appear at a higher zoom level, that zoom level is zoomed to instead.
 See [marker-clustering-zoomtobounds.html](http://leaflet.github.com/Leaflet.markercluster/example/marker-clustering-zoomtobounds.html) for a working example.
 ```javascript
 markers.on('clusterclick', function (a) {
