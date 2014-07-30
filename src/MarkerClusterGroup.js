@@ -979,11 +979,13 @@ L.MarkerClusterGroup.include(!L.DomUtil.TRANSITION ? {
 		//Update opacities
 		this._topClusterLevel._recursivelyBecomeVisible(bounds, newZoomLevel);
 		//TODO Maybe? Update markers in _recursivelyBecomeVisible
-		fg.eachLayer(function (n) {
-			if (!(n instanceof L.MarkerCluster) && n._icon) {
-				n.setOpacity(1);
-			}
-		});
+        fg.eachLayer(function (n) {
+            if (!(n instanceof L.MarkerCluster) && n._icon) {
+                if(n.options && n.options._opacity){
+                    n.setOpacity(n.options._opacity);
+                } else n.setOpacity(1);
+            }
+        });
 
 		//update the positions of the just added clusters/markers
 		this._topClusterLevel._recursively(bounds, previousZoomLevel, newZoomLevel, function (c) {
