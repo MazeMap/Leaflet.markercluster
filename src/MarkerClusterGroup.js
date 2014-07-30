@@ -981,9 +981,9 @@ L.MarkerClusterGroup.include(!L.DomUtil.TRANSITION ? {
 		//TODO Maybe? Update markers in _recursivelyBecomeVisible
         fg.eachLayer(function (n) {
             if (!(n instanceof L.MarkerCluster) && n._icon) {
-                if(n.options && n.options._opacity){
+                if (n.options && n.options._opacity) {
                     n.setOpacity(n.options._opacity);
-                } else n.setOpacity(1);
+                } else { n.setOpacity(1); }
             }
         });
 
